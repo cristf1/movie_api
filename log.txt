@@ -47,3 +47,15 @@ Timestamp: Fri Sep 02 2022 16:27:22 GMT-0700 (Pacific Daylight Time)
 URL: /favicon.ico
 Timestamp: Fri Sep 02 2022 16:27:22 GMT-0700 (Pacific Daylight Time)
 
+URL: /
+Timestamp: Tue Sep 06 2022 12:17:49 GMT-0700 (Pacific Daylight Time)
+
+URL: /favicon.ico
+Timestamp: Tue Sep 06 2022 12:17:50 GMT-0700 (Pacific Daylight Time)
+
+URL: /documentation
+Timestamp: Tue Sep 06 2022 13:40:34 GMT-0700 (Pacific Daylight Time)
+
+URL: /favicon.ico
+Timestamp: Tue Sep 06 2022 13:40:34 GMT-0700 (Pacific Daylight Time)
+
