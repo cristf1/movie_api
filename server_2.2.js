@@ -41,6 +41,5 @@ fs.readFile(filePath, (err, data) => {
      response.end();
    });
 
-response.end('Hello Node!\n');
 }).listen(8080);
 console.log('My test server is running on Port 8080.');
