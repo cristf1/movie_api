@@ -10,7 +10,79 @@
 
   <body>
     <h1>Cristines myFlix - Documentation</h1>
-    <p>This will have documentation information.</p>
+    <p> This is a web application that will provide users with access to
+      information about different movies, genres, and directors. MyFlix users
+      will be able to sign up for access, update their personal information, and
+      create and edit a list of their favorite movies.</p>
+
+    <h2> Return list of movies to the users </h2>
+    <table>
+      <tr>
+        <th>Request</th>
+        <th>Method</th>
+        <th>Format</th>
+        <th>Expected Information</th>
+      </tr>
+      <tr>
+        <td> Return list of movies to the users
+        <td>GET</td>
+        <td>List</td>
+        <td>User can expect to see movie title, description, genre, genre description, director, director bio and director birthday.</td>
+      </tr>
+      <tr>
+        <td> Return single movie by title</td>
+        <td>GET</td>
+        <td>List</td>
+        <td>User can expect to see movie title, description, genre, genre description, director, director bio and director birthday.</td>
+      </tr>
+      <tr>
+        <td> Return genre information</td>
+        <td>GET</td>
+        <td>List</td>
+        <td>User can expect to see genre name and description</td>
+      </tr>
+      <tr>
+        <td> Return director information</td>
+        <td>GET</td>
+        <td>List</td>
+        <td>User can expect to see director name, bio and birthday</td>
+      </tr>
+      <tr>
+        <td> Allow users to register</td>
+        <td>POST</td>
+        <td>List</td>
+        <td>User is expected to provide username, password, email, and birthday. Favorite movie is optional. This data will be stored in mongodb</td>
+      </tr>
+      <tr>
+        <td> Allow users to edit their info</td>
+        <td>PUT</td>
+        <td>List</td>
+        <td>User is expected to provide changed information and the previous information (username, password, email, and birthday). Favorite movie is optional. This data will be stored in mongodb</td>
+      </tr>
+      <tr>
+        <td> Allow users to add a movie to their list of favorites</td>
+        <td>PUT</td>
+        <td>List</td>
+        <td>User can enter a movie to add to favorite's list in an array.</td>
+      </tr>
+      <tr>
+        <td> Allow users to remove a movie from their list of favorites.</td>
+        <td>PUT</td>
+        <td>List</td>
+        <td>User can remove a movie from their list of favorites from an array.</td>
+      </tr>
+      <tr>
+        <td> Allow users to deregister.</td>
+        <td>PUT</td>
+        <td>List</td>
+        <td>User can remove themselves from the database.</td>
+      </tr>
+
+
+
+
+    <br></br>
+
   </body>
   <script src="server.js"></script>
   <script src="test.js"></script>

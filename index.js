@@ -2,8 +2,16 @@ const express = require('express');
  morgan = require('morgan');
  bodyParser= require('body-parser');
  uuid= require('uuid');
+ mongoose = require('mongoose');
+ Models = require ('./models.js');
+
+ const Movies = Models.Movie;
+ const Users = Models.User;
+
+ mongoose.connect('mongodb://localhost:27017/myFlixDB', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const app = express();
+
 
 app.use(morgan('common'));
 app.use(bodyParser.json());
@@ -12,34 +20,34 @@ app.use(bodyParser.json());
 let top10movies = [
   {name:"The Rescue",
 genre: {name:'documentary'},
-director: 'Jimmy Chin, Elizabeth Chai Vasarhelyi'},
+director:{name:['Jimmy Chin', 'Elizabeth Chai Vasarhelyi']} },
   {name:"Raya",
   genre:{name:'family film'},
-  director: 'Carlos López Estrada, Don Hall'},
+  director: {name:['Carlos López Estrada', 'Don Hall']}},
   {name:"Frozen",
 genre:{name:'family film'},
-director: 'Chris Buck, Jennifer Lee'},
+director: {name:['Chris Buck', 'Jennifer Lee'] } },
   {name:"Frozen II",
 genre: {name:'family film'},
-director: 'Chris Buck, Jennifer Lee'},
+director: {name:['Chris Buck', 'Jennifer Lee']}},
   {name:"Little Mermaid",
 genre: {name:'family film'},
-director: 'John Musker, Ron Clements'},
+director:{name: ['John Musker', 'Ron Clements']} },
   {name:"Karate Kid",
 genre:{name:'martial arts'},
-director: 'Harald Zwart'},
+director:{name:'Harald Zwart'}},
   {name:"Secretly, Greatly",
 genre: {name:'comedy-drama'},
-director: 'Jang Cheol-soo'},
+director: {name:'Jang Cheol-soo'}},
   {name:"ShangChi",
 genre: {name:'marvel'},
-director: "Destin Daniel Cretton"},
+director: {name:'Destin Daniel Cretton'}},
   {name:"Spider-Man: No Way Home",
 genre:{name:'action'},
-director: "Jon Watts"},
+director: {name:'Jon Watts'}},
   {name:"Avengers: Endgame",
 genre: {name:'action'},
-director: "Anthony Russo, Joe Russo"},
+director:{name:["Anthony Russo", "Joe Russo"]}},
 ];
 
 let users= [
@@ -48,13 +56,13 @@ let users= [
     username: "cristinefang",
     favoritemovie:["The Rescue"],
     email: "cristinefang@gmail.com"
-  }
-  /*{id: 2,
+  },
+  {id: 2,
     name: "Wallace Fang",
     username: "wallacefang",
     favoritemovie:["Karate Kid"],
     email: "wallacefangfang@gmail.com"
-  }*/
+  }
 ];
 
 app.get("/", (req,res) => {
@@ -64,102 +72,215 @@ app.get("/", (req,res) => {
 app.use(express.static('public'));
 
 
+//Add a user
+/* We’ll expect JSON in this format
+{
+  ID: Integer,
+  Username: String,
+  Password: String,
+  Email: String,
+  Birthday: Date
+}*/
 
-//Return a list of all movies to the user
-app.get("/movies", (req, res) => {
-  res.status(201).json(top10movies);
+
+app.post('/users', (req, res) => {
+  Users.findOne({ Username: req.body.Username })
+    .then((user) => {
+      if (user) {
+        return res.status(400).send(req.body.Username + 'already exists');
+      } else {
+        Users
+          .create({
+            Username: req.body.Username,
+            Password: req.body.Password,
+            Email: req.body.Email,
+            Birthday: req.body.Birthday
+          })
+          .then((user) =>{res.status(201).json(user) })
+        .catch((error) => {
+          console.error(error);
+          res.status(500).send('Error: ' + error);
+        })
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error: ' + error);
+    });
 });
 
-//Return data about a single movie by title
-app.get("/movies/:name", (req, res)=>{
-  const {name} = req.params;
-  const movie = top10movies.find(movie => movie.name === name);
 
-  if (movie){
-    res.status(200).json(movie);
+//Return Users Collection
+app.get('/users', (req,res) => {
+  Users.find()
+  .then((users) => {
+    res.status(201).json(users);
+  })
+  .catch((err)=>{
+    console.error(err);
+    res.status(500).send('Error:' + error);
+  })
+});
+
+//Return specific user
+app.get('/users/:Username', (req,res)=> {
+  Users.findOne({Username: req.params.Username})
+  .then((user)=> {res.json(user)})
+  .catch((err)=> {
+    res.status(500).send('Error'+ error);
+  })
+});
+
+// Update a user's info, by username
+/* We’ll expect JSON in this format
+{
+  Username: String,
+  (required)
+  Password: String,
+  (required)
+  Email: String,
+  (required)
+  Birthday: Date
+}*/
+app.put('/users/:Username', (req, res) => {
+  Users.findOneAndUpdate({ Username: req.params.Username }, { $set:
+    {
+      Username: req.body.Username,
+      Password: req.body.Password,
+      Email: req.body.Email,
+      Birthday: req.body.Birthday
+    }
+  },
+  { new: true }, // This line makes sure that the updated document is returned
+  (err, updatedUser) => {
+    if(err) {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    } else {
+      res.json(updatedUser);
+    }
+  });
+});
+
+//Add a movie to user's list of favorite
+app.post('/users/:Username', (req, res) => {
+  Users.findOneAndUpdate({Users:req.params.Username},{$push:
+  {FavoriteMovies: req.params.MovieID}
+},
+{new:true},
+(err, updatedUser) => {
+  if(err) {
+    console.error(err);
+    res.status(500).send('Error:' + err);
+  } else {
+    res.json(updatedUser);
   }
-    else{
-      res.status(400).send('no such movie');
-    }});
+})
+});
+
+// Delete a user by username
+app.delete('/users/:Username', (req, res) => {
+  Users.findOneAndRemove({ Username: req.params.Username })
+    .then((user) => {
+      if (!user) {
+        res.status(400).send(req.params.Username + ' was not found');
+      } else {
+        res.status(200).send(req.params.Username + ' was deleted.');
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
+});
+
+
+app.put('/movies', (req, res) => {
+  Users.findOneAndUpdate({ Username: req.params.Username }, { $set:
+    {
+      Username: req.body.Username,
+      Password: req.body.Password,
+      Email: req.body.Email,
+      Birthday: req.body.Birthday
+    }
+  },
+  { new: true }, // This line makes sure that the updated document is returned
+  (err, updatedUser) => {
+    if(err) {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    } else {
+      res.json(updatedUser);
+    }
+  });
+});
+
+
+//Return a list of all movies to the user
+app.post('/movies', (req, res) => {
+  Movies.findOne({ Title: req.body.Title })
+    .then((movie) => {
+      if (movie) {
+        return res.status(400).send(req.body.Title + 'already exists');
+      } else {
+        Movies
+          .create({
+            Title: req.body.Title,
+            Description: req.body.Description,
+            'Genre.Name': req.body.Genre.Name,
+            "Genre.Description": req.body.Genre.Description,
+            'Director.Name': req.body.Director.Name,
+            'Director.Bio': req.body.Director.Bio,
+
+          })
+          .then((user) =>{res.status(201).json(user) })
+        .catch((error) => {
+          console.error(error);
+          res.status(500).send('Error: ' + error);
+        })
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error: ' + error);
+    });
+});
+
+
+
+//Return data about a single movie by title
+app.get("/movies/:Title", (req, res)=>{
+  Movies.findOne({Title: req.params.Title})
+  .then((movie) => {res.json(movie)})
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('Error:'+ error);
+  })
+});
 
 
 //Return data about a genre by title
-app.get("movies/genre/:genreName", (req,res)=>{
-  const {genreName} = req.params;
-  const genre = top10movies.find(movie => movie.genre.name === genreName).genre;
-
-  if (genre){
-    res.status(200).json(genre);
-  }
-    else{
-      res.status(400).send('no such genre');
-    }});
-
+app.get("/movies/genre/:genreName", (req,res)=>{
+  Movies.find({'Genre.Name': req.params.Genre.Name}) //not sure about this naming convention
+  .then((movie) => {res.json(movie)})
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('Error' + error);
+  })
+});
 
 
 //Return data about a director by name
-app.get("movies/director/:director", (req,res)=>{
-  const {directorName} = req.params;
-  const director = top10movies.find(movie => movie.director === directorName).director;
-
-  if (director){
-    res.status(200).json(director);
-  }
-    else{
-      res.status(400).send('no such director');
-    }});
-
-
-
-//Allow new users to register
-app.post('/users', (req,res)=>{
-  const newUser= req.body;
-
-  if(newUser.name){
-    newUser.id = uuid.v4();
-    users.push(newUser);
-    res.status(201).json(newUser)}
-  else {
-    res.status(400).send("invalid");
-  }
+app.get("/movies/director/:directorName", (req,res)=>{
+  Movies.find({"Director.Name":req.params.Director.Name})
+  .then((movie) => {
+    res.json(movie)
+  })
+  .catch((err) => {
+    res.status(500).send('Error:' + error);
+  })
 });
 
-
-//Allow user to edit username
-app.put('/users/:id',(req,res)=>{
-  const {id}= req.params;
-  const updatedUser = req.body;
-
-  let user = users.find(user=> users.id === id);
-
-  if (user) {
-    user.name=updatedUser.name;
-    res.status(201).res(json);
-  } else {
-    res.status(404).send('User does not exist');
-  }
-});
-
-/*
-//Allow user to add favorite movie
-app.put('/register/:name/:favoritemovie', (req,res)=>{
-  let user = users.find(name) =>{return user.name === req.param.name});
-  if (user){
-    user.name[req.params.name]= parseInt(req.params.favoritemovie)
-    res.status(201).send(req.params.favoritemovie + 'was added as a favorite movie.');
-  } else {
-    res.status(404).send('User with the name ' + req.params.name + ' was not found.');
-  }
-
-//Allow user to delete favorite movie
-app.delete('/register/:name/:favoritemovie', (req,res) => {
-  let user = users.find(name) => {return user.name === req.param.name});
-  if (user) {
-    users = user.filter((obj) => { return obj.favoritemovie !== req.params.favoritemovie });
-    res.status(201).send('Student ' + req.params.favoritemovie + ' was deleted.');
-  }
-});
-*/
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
