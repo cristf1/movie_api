@@ -163,7 +163,7 @@ app.put('/users/:Username', (req, res) => {
 });
 
 //Add a movie to user's list of favorite
-app.post('/users/:Username', (req, res) => {
+app.post('/users/:Username/movies/:MovieID', (req, res) => {
   Users.findOneAndUpdate({Users:req.params.Username},{$push:
   {FavoriteMovies: req.params.MovieID}
 },
@@ -194,62 +194,22 @@ app.delete('/users/:Username', (req, res) => {
     });
 });
 
-
-app.put('/movies', (req, res) => {
-  Users.findOneAndUpdate({ Username: req.params.Username }, { $set:
-    {
-      Username: req.body.Username,
-      Password: req.body.Password,
-      Email: req.body.Email,
-      Birthday: req.body.Birthday
-    }
-  },
-  { new: true }, // This line makes sure that the updated document is returned
-  (err, updatedUser) => {
-    if(err) {
-      console.error(err);
-      res.status(500).send('Error: ' + err);
-    } else {
-      res.json(updatedUser);
-    }
-  });
-});
-
+//MOVIES
 
 //Return a list of all movies to the user
-app.post('/movies', (req, res) => {
-  Movies.findOne({ Title: req.body.Title })
-    .then((movie) => {
-      if (movie) {
-        return res.status(400).send(req.body.Title + 'already exists');
-      } else {
-        Movies
-          .create({
-            Title: req.body.Title,
-            Description: req.body.Description,
-            'Genre.Name': req.body.Genre.Name,
-            "Genre.Description": req.body.Genre.Description,
-            'Director.Name': req.body.Director.Name,
-            'Director.Bio': req.body.Director.Bio,
-
-          })
-          .then((user) =>{res.status(201).json(user) })
-        .catch((error) => {
-          console.error(error);
-          res.status(500).send('Error: ' + error);
-        })
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send('Error: ' + error);
-    });
+app.get('/movies', (req, res)=>{
+  Movies.find()
+  .then((movie)=>{
+    res.status(201).json(movie)
+  })
+  .catch((err)=>{
+    console.error(err);
+    res.status(500).send('Error:' + err);
+  })
 });
 
-
-
 //Return data about a single movie by title
-app.get("/movies/:Title", (req, res)=>{
+app.get('/movies/:Title', (req, res)=>{
   Movies.findOne({Title: req.params.Title})
   .then((movie) => {res.json(movie)})
   .catch((err) => {
@@ -259,10 +219,12 @@ app.get("/movies/:Title", (req, res)=>{
 });
 
 
-//Return data about a genre by title
+//Return data about genre by genre name
 app.get("/movies/genre/:genreName", (req,res)=>{
-  Movies.find({'Genre.Name': req.params.Genre.Name}) //not sure about this naming convention
-  .then((movie) => {res.json(movie)})
+  Movies.find({'Genre.Name':req.params.genreName}) //not sure about this naming convention
+  .then((movie) => {
+    res.status(201).json(movie)
+  })
   .catch((err) => {
     console.error(err);
     res.status(500).send('Error' + error);
@@ -270,9 +232,10 @@ app.get("/movies/genre/:genreName", (req,res)=>{
 });
 
 
+
 //Return data about a director by name
 app.get("/movies/director/:directorName", (req,res)=>{
-  Movies.find({"Director.Name":req.params.Director.Name})
+  Movies.find({"Director.Name":req.params.directorName})
   .then((movie) => {
     res.json(movie)
   })
