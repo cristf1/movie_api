@@ -5,6 +5,7 @@ const express = require('express');
  mongoose = require('mongoose');
  Models = require ('./models.js');
 
+
  const Movies = Models.Movie;
  const Users = Models.User;
 
@@ -15,6 +16,10 @@ const app = express();
 
 app.use(morgan('common'));
 app.use(bodyParser.json());
+
+ let auth = require('./auth')(app);
+ const passport = require('passport');
+require('./passport');
 
 
 let top10movies = [
@@ -70,6 +75,17 @@ app.get("/", (req,res) => {
 });
 
 app.use(express.static('public'));
+
+app.get('/movies', passport.authenticate('jwt', {session: false}), (req, res) =>{
+  Movies.find()
+  .then((movies) => {
+    res.status(201).json(movies);
+  })
+  .catch((error)=>{
+    console.error(error);
+    res.status(500).send('Error:' + error);
+  });
+});
 
 
 //Add a user
