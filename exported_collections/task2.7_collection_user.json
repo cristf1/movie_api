@@ -1,0 +1,4 @@
+{"_id":{"$oid":"6336257a31cd9537d4ad57c1"},"Username":"cristinefang","Email":"cristinefang@gmail.com","Birthday":{"$date":"1997-08-07T00:00:00Z"},"FavoriteMovie":[{"$oid":"63353c5313c06c710ee568cf"}]}
+{"_id":{"$oid":"633625a431cd9537d4ad57c2"},"Username":"wallacefang","Email":"wallacefang@gmail.com","Birthday":{"$date":"2001-03-03T00:00:00Z"}}
+{"_id":{"$oid":"633625ef31cd9537d4ad57c3"},"Username":"yaohuifang","Email":"yaohuifang@gmail.com","Birthday":{"$date":{"$numberLong":"-398649600000"}}}
+{"_id":{"$oid":"6336263531cd9537d4ad57c4"},"Username":"qingcen","Email":"qingcen@gmail.com","Birthday":{"$date":{"$numberLong":"-263606400000"}}}
