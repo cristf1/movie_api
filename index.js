@@ -4,7 +4,7 @@ const express = require('express');
  uuid= require('uuid');
  mongoose = require('mongoose');
  Models = require ('./models.js');
- {check, validationResult} = require('express-validator');
+ const {check, validationResult} = require('express-validator');
 
 
  const Movies = Models.Movie;
