@@ -10,7 +10,7 @@ const express = require('express');
  const Movies = Models.Movie;
  const Users = Models.User;
 
-ongoose.connect( process.env.CONNECTIOIN_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect( process.env.CONNECTIOIN_URI, { useNewUrlParser: true, useUnifiedTopology: true });
  //mongoose.connect('mongodb://localhost:27017/myFlixDB', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const app = express();
@@ -26,7 +26,7 @@ app.use(cors());
  let auth = require('./auth')(app);
  const passport = require('passport');
 require('./passport');
-x
+
 
 app.get("/", (req,res) => {
   res.send('Welcome to MyFlix');
