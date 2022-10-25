@@ -3,20 +3,13 @@ const express = require('express');
  bodyParser= require('body-parser');
  uuid= require('uuid');
  mongoose = require('mongoose');
-
  Models = require ('./models.js');
- const {check, validationResult} = require('express-validator');
 
 
  const Movies = Models.Movie;
  const Users = Models.User;
 
-require('dotenv').config();
-//const source= process.env.CONNECTION_URI;
-console.log(process.env.CONNECTION_URI);
-
-//mongoose.connect('mongodb+srv://myFlixDBadmin:Cr1st1n3.@myflixdb.094if0q.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.connect('mongodb://localhost:27017/myFlixDB', { useNewUrlParser: true, useUnifiedTopology: true });
+ mongoose.connect('mongodb://localhost:27017/myFlixDB', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const app = express();
 
@@ -26,7 +19,6 @@ app.use(bodyParser.json());
 
 const cors = require('cors');
 app.use(cors());
-
 
  let auth = require('./auth')(app);
  const passport = require('passport');
@@ -39,20 +31,7 @@ app.get("/", (req,res) => {
 
 app.use(express.static('public'));
 
-app.post('/users', [
-  check('Username', 'Username is required').isLength({min:5}),
-  check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
-  check('Password', 'Password is required').not().isEmpty(),
-  check('Email', 'Email is invalid.').isEmail()
-],(req, res) => {
-
-  let errors = validationResult(req);
-
-  if(!errors.isEmpty()){
-    return res.status(422).json({errors: errors.array()});
-  }
-
-  let hashedPassword = Users.hashPassword(req.body.Password);
+app.post('/users', (req, res) => {
   Users.findOne({ Username: req.body.Username })
     .then((user) => {
       if (user) {
@@ -101,17 +80,7 @@ app.get('/users/:Username', passport.authenticate('jwt', {session: false}), (req
 });
 
 
-app.put('/users/:Username', passport.authenticate('jwt', {session: false}),[
-  check('Username', 'Username is required').isLength({min:5}),
-  check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
-  check('Password', 'Password is required').not().isEmpty(),
-  check('Email', 'Email is invalid.').isEmail()], (req, res) => {
-  let errors = validationResult(req);
-
-  if(!errors.isEmpty()){
-    return res.status(422).json({errors: errors.array()});
-  }
-
+app.put('/users/:Username', passport.authenticate('jwt', {session: false}), (req, res) => {
   Users.findOneAndUpdate({ Username: req.params.Username }, { $set:
     {
       Username: req.body.Username,
@@ -128,8 +97,8 @@ app.put('/users/:Username', passport.authenticate('jwt', {session: false}),[
     } else {
       res.json(updatedUser);
     }
-  }
-)});
+  });
+});
 
 //Add a movie to user's list of favorite
 app.post('/users/:Username/movies/:MovieID', passport.authenticate('jwt', {session: false}), (req, res) => {
@@ -236,6 +205,6 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 
-const port = process.env.PORT || 8080;
-app.listen(port, '0.0.0.0',() => {
- console.log('Listening on Port ' + port)});
+app.listen(8080, () => {
+  console.log('Your app is listening on port 8080.');
+});
