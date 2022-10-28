@@ -14,8 +14,7 @@ const Users = Models.User;
 require('dotenv').config();
 //const source= process.env.CONNECTION_URI;
 console.log(process.env.CONNECTION_URI);
-
-mongoose.connect('mongodb+srv://myFlixDBadmin:Cr1st1n3.@myflixdb.094if0q.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 //mongoose.connect('mongodb://localhost:27017/myFlixDB', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const app = express();
