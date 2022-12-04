@@ -88,7 +88,7 @@ app.get('/users'/*, passport.authenticate('jwt', { session: false }*/), (req, re
       console.error(err);
       res.status(500).send('Error:' + error);
     })
-});
+};
 
 //Return specific user
 app.get('/users/:Username', passport.authenticate('jwt', { session: false }), (req, res) => {
