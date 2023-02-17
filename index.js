@@ -208,6 +208,16 @@ app.get('/movies/:Title', passport.authenticate('jwt', { session: false }), (req
     })
 });
 
+//Return data about a single movie by movie ID
+app.get('/movies/:MovieID', passport.authenticate('jwt', { session: false }), (req, res) => {
+  Movies.findOne({ Title: req.params.MovieID })
+    .then((movie) => { res.json(movie) })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error:' + error);
+    })
+});
+
 
 //Return data about genre by genre name
 app.get("/movies/genre/:genreName", passport.authenticate('jwt', { session: false }), (req, res) => {
